@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Enable round icon mode -->
+    <bool name="config_useRoundIcon">false</bool>
+
+    <!-- Use round icon mask -->
+    <string name="config_icon_mask" translatable="false">"M0,28.333C0,12.685 12.685,0 28.333,0H71.667C87.315,0 100,12.685 100,28.333V71.667C100,87.315 87.315,100 71.667,100H28.333C12.685,100 0,87.315 0,71.667V28.333Z"</string>
+</resources>

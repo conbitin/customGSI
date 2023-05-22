@@ -1,0 +1,129 @@
+diff --git a/core/java/android/app/WallpaperManager.java b/core/java/android/app/WallpaperManager.java
+index e022ca3..3c094ac 100644
+--- a/core/java/android/app/WallpaperManager.java
++++ b/core/java/android/app/WallpaperManager.java
+@@ -2265,16 +2265,13 @@ public class WallpaperManager {
+      *
+      * @hide
+      */
+-    @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.R, trackingBug = 170729553)
++    @UnsupportedAppUsage
+     public static InputStream openDefaultWallpaper(Context context, @SetWallpaperFlags int which) {
+         final String whichProp;
+         final int defaultResId;
+         if (which == FLAG_LOCK) {
+-            /* Factory-default lock wallpapers are not yet supported
+             whichProp = PROP_LOCK_WALLPAPER;
+             defaultResId = com.android.internal.R.drawable.default_lock_wallpaper;
+-            */
+-            return null;
+         } else {
+             whichProp = PROP_WALLPAPER;
+             defaultResId = com.android.internal.R.drawable.default_wallpaper;
+diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
+index 31229e9..b36631b 100644
+--- a/core/res/res/values/config.xml
++++ b/core/res/res/values/config.xml
+@@ -1717,7 +1717,7 @@
+     <string name="default_wallpaper_component" translatable="false">@null</string>
+ 
+     <!-- By default a product has no distinct default lock wallpaper -->
+-    <item name="default_lock_wallpaper" type="drawable">@null</item>
++    <item name="default_lock_wallpaper" type="drawable"></item>
+ 
+     <!-- Component name of the built in wallpaper used to display bitmap wallpapers. This must not be null. -->
+     <string name="image_wallpaper_component" translatable="false">com.android.systemui/com.android.systemui.ImageWallpaper</string>
+@@ -3976,7 +3976,7 @@
+     <bool name="config_allow3rdPartyAppOnInternal">true</bool>
+ 
+     <!-- Specifies the path that is used by AdaptiveIconDrawable class to crop launcher icons. -->
+-    <string name="config_icon_mask" translatable="false">"M50,0L92,0C96.42,0 100,4.58 100 8L100,92C100, 96.42 96.42 100 92 100L8 100C4.58, 100 0 96.42 0 92L0 8 C 0 4.42 4.42 0 8 0L50 0Z"</string>
++    <string name="config_icon_mask" translatable="false">"M50,0L88,0 C94.4,0 100,5.4 100 12 L100,88 C100,94.6 94.6 100 88 100 L12,100 C5.4,100 0,94.6 0,88 L0 12 C0 5.4 5.4 0 12 0 L50,0 Z"</string>
+ 
+     <!-- The component name, flattened to a string, for the default accessibility service to be
+          enabled by the accessibility shortcut. This service must be trusted, as it can be activated
+diff --git a/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java b/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
+index 13690f3..3211ebe 100644
+--- a/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
++++ b/packages/SystemUI/src/com/android/keyguard/KeyguardUpdateMonitor.java
+@@ -248,7 +248,7 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, Dumpab
+         }
+     }
+ 
+-    private final Context mContext;
++    public final Context mContext;
+     private final boolean mIsPrimaryUser;
+     private final boolean mIsAutomotive;
+     private final AuthController mAuthController;
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/LockscreenWallpaper.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/LockscreenWallpaper.java
+index 8793a57..2475d9d 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/LockscreenWallpaper.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/LockscreenWallpaper.java
+@@ -49,6 +49,8 @@ import com.android.systemui.statusbar.NotificationMediaManager;
+ 
+ import libcore.io.IoUtils;
+ 
++import java.io.IOException;
++import java.io.InputStream;
+ import java.io.PrintWriter;
+ import java.util.Objects;
+ 
+@@ -104,6 +106,7 @@ public class LockscreenWallpaper extends IWallpaperManagerCallback.Stub implemen
+         if (mCached) {
+             return mCache;
+         }
++
+         if (!mWallpaperManager.isWallpaperSupported()) {
+             mCached = true;
+             mCache = null;
+@@ -153,9 +156,24 @@ public class LockscreenWallpaper extends IWallpaperManagerCallback.Stub implemen
+ 
+             } else {
+                 // When there is no selected user, show the system wallpaper
+-                return LoaderResult.success(null);
++                return LoaderResult.success(getDefaultLockWallpaper());
++            }
++        }
++    }
++
++    private Bitmap getDefaultLockWallpaper() {
++        InputStream is = mWallpaperManager.openDefaultWallpaper(mUpdateMonitor.mContext, WallpaperManager.FLAG_LOCK);
++        if (is != null) {
++            try {
++                BitmapFactory.Options options = new BitmapFactory.Options();
++                return BitmapFactory.decodeStream(is, null, options);
++            } catch (OutOfMemoryError e) {
++                Log.w(TAG, "Can't decode stream", e);
++            } finally {
++                IoUtils.closeQuietly(is);
+             }
+         }
++        return null;
+     }
+ 
+     public void setCurrentUser(int user) {
+@@ -177,6 +195,7 @@ public class LockscreenWallpaper extends IWallpaperManagerCallback.Stub implemen
+ 
+     @Override
+     public void onWallpaperChanged() {
++        Log.i(TAG, "onWallpaperChanged");
+         // Called on Binder thread.
+         postUpdateWallpaper();
+     }
+@@ -187,6 +206,7 @@ public class LockscreenWallpaper extends IWallpaperManagerCallback.Stub implemen
+     }
+ 
+     private void postUpdateWallpaper() {
++        Log.i(TAG, "postUpdateWallpaper");
+         if (mH == null) {
+             Log.wtfStack(TAG, "Trying to use LockscreenWallpaper before initialization.");
+             return;
+@@ -203,6 +223,8 @@ public class LockscreenWallpaper extends IWallpaperManagerCallback.Stub implemen
+             mLoader.cancel(false /* interrupt */);
+         }
+ 
++        Log.i(TAG, "run loading bitmap");
++
+         final int currentUser = mCurrentUserId;
+         final UserHandle selectedUser = mSelectedUser;
+         mLoader = new AsyncTask<Void, Void, LoaderResult>() {

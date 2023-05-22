@@ -1,0 +1,15 @@
+diff --git a/target/product/generic_system.mk b/target/product/generic_system.mk
+index 1a639ef..b4085bf 100644
+--- a/target/product/generic_system.mk
++++ b/target/product/generic_system.mk
+@@ -84,6 +84,10 @@ PRODUCT_PACKAGES += \
+     libhidltransport \
+     libhwbinder \
+ 
++# Boot animation
++PRODUCT_COPY_FILES += \
++    device/vendor/config/bootanimation/bootanimation_fulgo.zip:/system/media/bootanimation.zip
++
+ PRODUCT_PACKAGES_DEBUG += \
+     avbctl \
+     bootctl \

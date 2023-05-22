@@ -1,0 +1,549 @@
+diff --git a/res/values/attrs.xml b/res/values/attrs.xml
+index 13f20c2..6a6811b 100644
+--- a/res/values/attrs.xml
++++ b/res/values/attrs.xml
+@@ -172,6 +172,7 @@
+ 
+         <attr name="dbFile" format="string" />
+         <attr name="defaultLayoutId" format="reference" />
++        <attr name="defaultWidgetId" format="reference" />
+         <attr name="defaultSplitDisplayLayoutId" format="reference" />
+         <attr name="demoModeLayoutId" format="reference" />
+         <attr name="isScalable" format="boolean" />
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 847e4a8..bc8dfbf 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -444,4 +444,10 @@
+     <string name="search_pref_screen_title_tablet">Search your tablet</string>
+     <!-- Failed action error message: e.g. Failed: Pause -->
+     <string name="remote_action_failed">Failed: <xliff:g id="what" example="Pause">%1$s</xliff:g></string>
++
++    <!-- permission location dialog -->
++    <string name="title_dialog_check_location">Turn on location permission</string>
++    <string name="des_dialog_check_location">Turn on location permission: Click Permission -> Turn on Location Permission</string>
++    <string name="accept_dialog">Accept</string>
++    <string name="skip_dialog">Skip</string>
+ </resources>
+diff --git a/res/xml/default_workspace_4x4.xml b/res/xml/default_workspace_4x4.xml
+index bf3c62c..bb4f2ed 100644
+--- a/res/xml/default_workspace_4x4.xml
++++ b/res/xml/default_workspace_4x4.xml
+@@ -18,26 +18,23 @@
+ 
+     <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
+     <!-- Dialer, Messaging, Browser, Camera -->
+-    <resolve
++	<resolve
+         launcher:container="-101"
+         launcher:screen="0"
+         launcher:x="0"
+         launcher:y="0" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.DIAL;end" />
+-        <favorite launcher:uri="tel:123" />
+-        <favorite launcher:uri="#Intent;action=android.intent.action.CALL_BUTTON;end" />
++        <favorite launcher:uri="#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end" />
++        <favorite launcher:uri="#Intent;action=android.intent.action.CAMERA_BUTTON;end" />
+     </resolve>
+ 
+-    <resolve
++	<resolve
+         launcher:container="-101"
+         launcher:screen="1"
+         launcher:x="1"
+         launcher:y="0" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_MESSAGING;end" />
+-        <favorite launcher:uri="sms:" />
+-        <favorite launcher:uri="smsto:" />
+-        <favorite launcher:uri="mms:" />
+-        <favorite launcher:uri="mmsto:" />
++        <favorite
++            className="com.android.settings.Settings"
++            packageName="com.android.settings" />
+     </resolve>
+ 
+     <resolve
+@@ -45,9 +42,9 @@
+         launcher:screen="2"
+         launcher:x="2"
+         launcher:y="0" >
+-        <favorite
+-            launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_BROWSER;end" />
+-        <favorite launcher:uri="http://www.example.com/" />
++        <favorite launcher:uri="#Intent;action=android.intent.action.DIAL;end" />
++        <favorite launcher:uri="tel:123" />
++        <favorite launcher:uri="#Intent;action=android.intent.action.CALL_BUTTON;end" />
+     </resolve>
+ 
+     <resolve
+@@ -55,33 +52,11 @@
+         launcher:screen="3"
+         launcher:x="3"
+         launcher:y="0" >
+-        <favorite launcher:uri="#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end" />
+-        <favorite launcher:uri="#Intent;action=android.intent.action.CAMERA_BUTTON;end" />
+-    </resolve>
+-
+-    <!-- Bottom row -->
+-    <resolve
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="-1" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_EMAIL;end" />
+-        <favorite launcher:uri="mailto:" />
+-    </resolve>
+-
+-    <resolve
+-        launcher:screen="0"
+-        launcher:x="1"
+-        launcher:y="-1" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_GALLERY;end" />
+-        <favorite launcher:uri="#Intent;type=images/*;end" />
+-    </resolve>
+-
+-    <resolve
+-        launcher:screen="0"
+-        launcher:x="3"
+-        launcher:y="-1" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_MARKET;end" />
+-        <favorite launcher:uri="market://details?id=com.android.launcher" />
++        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_MESSAGING;end" />
++        <favorite launcher:uri="sms:" />
++        <favorite launcher:uri="smsto:" />
++        <favorite launcher:uri="mms:" />
++        <favorite launcher:uri="mmsto:" />
+     </resolve>
+-
++    
+ </favorites>
+diff --git a/res/xml/default_workspace_5x5.xml b/res/xml/default_workspace_5x5.xml
+deleted file mode 100644
+index b4ac8f6..0000000
+--- a/res/xml/default_workspace_5x5.xml
++++ /dev/null
+@@ -1,98 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2009 The Android Open Source Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
+-
+-    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
+-    <!-- Dialer, Messaging, [Maps/Music], Browser, Camera -->
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="0" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.DIAL;end" />
+-        <favorite launcher:uri="tel:123" />
+-        <favorite launcher:uri="#Intent;action=android.intent.action.CALL_BUTTON;end" />
+-    </resolve>
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="1"
+-        launcher:x="1"
+-        launcher:y="0" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_MESSAGING;end" />
+-        <favorite launcher:uri="sms:" />
+-        <favorite launcher:uri="smsto:" />
+-        <favorite launcher:uri="mms:" />
+-        <favorite launcher:uri="mmsto:" />
+-    </resolve>
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="2"
+-        launcher:x="2"
+-        launcher:y="0" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_MAPS;end" />
+-        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_MUSIC;end" />
+-    </resolve>
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="3"
+-        launcher:x="3"
+-        launcher:y="0" >
+-        <favorite
+-            launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_BROWSER;end" />
+-        <favorite launcher:uri="http://www.example.com/" />
+-    </resolve>
+-
+-    <resolve
+-        launcher:container="-101"
+-        launcher:screen="4"
+-        launcher:x="4"
+-        launcher:y="0" >
+-        <favorite launcher:uri="#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end" />
+-        <favorite launcher:uri="#Intent;action=android.intent.action.CAMERA_BUTTON;end" />
+-    </resolve>
+-
+-    <!-- Bottom row -->
+-    <resolve
+-        launcher:screen="0"
+-        launcher:x="0"
+-        launcher:y="-1" >
+-	    <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_EMAIL;end" />
+-	    <favorite launcher:uri="mailto:" />
+-
+-    </resolve>
+-
+-    <resolve
+-        launcher:screen="0"
+-        launcher:x="1"
+-        launcher:y="-1" >
+-	    <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_GALLERY;end" />
+-	    <favorite launcher:uri="#Intent;type=images/*;end" />
+-
+-    </resolve>
+-
+-    <resolve
+-        launcher:screen="0"
+-        launcher:x="4"
+-        launcher:y="-1" >
+-        <favorite launcher:uri="#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_MARKET;end" />
+-        <favorite launcher:uri="market://details?id=com.android.launcher" />
+-    </resolve>
+-
+-</favorites>
+diff --git a/res/xml/device_profiles.xml b/res/xml/device_profiles.xml
+index 0802552..ad2a039 100644
+--- a/res/xml/device_profiles.xml
++++ b/res/xml/device_profiles.xml
+@@ -18,39 +18,6 @@
+ <profiles xmlns:launcher="http://schemas.android.com/apk/res-auto" >
+ 
+     <grid-option
+-        launcher:name="3_by_3"
+-        launcher:numRows="3"
+-        launcher:numColumns="3"
+-        launcher:numFolderRows="2"
+-        launcher:numFolderColumns="3"
+-        launcher:numHotseatIcons="3"
+-        launcher:dbFile="launcher_3_by_3.db"
+-        launcher:defaultLayoutId="@xml/default_workspace_3x3"
+-        launcher:deviceCategory="phone|multi_display" >
+-
+-        <display-option
+-            launcher:name="Super Short Stubby"
+-            launcher:minWidthDps="255"
+-            launcher:minHeightDps="300"
+-            launcher:iconImageSize="48"
+-            launcher:iconTextSize="13.0"
+-            launcher:allAppsBorderSpace="16"
+-            launcher:allAppsCellHeight="104"
+-            launcher:canBeDefault="true" />
+-
+-        <display-option
+-            launcher:name="Shorter Stubby"
+-            launcher:minWidthDps="255"
+-            launcher:minHeightDps="400"
+-            launcher:iconImageSize="48"
+-            launcher:iconTextSize="13.0"
+-            launcher:allAppsBorderSpace="16"
+-            launcher:allAppsCellHeight="104"
+-            launcher:canBeDefault="true" />
+-
+-    </grid-option>
+-
+-    <grid-option
+         launcher:name="4_by_4"
+         launcher:numRows="4"
+         launcher:numColumns="4"
+@@ -65,7 +32,7 @@
+             launcher:name="Short Stubby"
+             launcher:minWidthDps="275"
+             launcher:minHeightDps="420"
+-            launcher:iconImageSize="48"
++            launcher:iconImageSize="70"
+             launcher:iconTextSize="13.0"
+             launcher:allAppsBorderSpace="16"
+             launcher:allAppsCellHeight="104"
+@@ -75,7 +42,7 @@
+             launcher:name="Stubby"
+             launcher:minWidthDps="255"
+             launcher:minHeightDps="450"
+-            launcher:iconImageSize="48"
++            launcher:iconImageSize="70"
+             launcher:iconTextSize="13.0"
+             launcher:allAppsBorderSpace="16"
+             launcher:allAppsCellHeight="104"
+@@ -85,7 +52,7 @@
+             launcher:name="Nexus S"
+             launcher:minWidthDps="296"
+             launcher:minHeightDps="491.33"
+-            launcher:iconImageSize="48"
++            launcher:iconImageSize="70"
+             launcher:iconTextSize="13.0"
+             launcher:allAppsBorderSpace="16"
+             launcher:allAppsCellHeight="104"
+@@ -95,7 +62,7 @@
+             launcher:name="Nexus 4"
+             launcher:minWidthDps="359"
+             launcher:minHeightDps="567"
+-            launcher:iconImageSize="54"
++            launcher:iconImageSize="70"
+             launcher:iconTextSize="13.0"
+             launcher:allAppsBorderSpace="16"
+             launcher:allAppsCellHeight="104"
+@@ -105,50 +72,7 @@
+             launcher:name="Nexus 5"
+             launcher:minWidthDps="335"
+             launcher:minHeightDps="567"
+-            launcher:iconImageSize="54"
+-            launcher:iconTextSize="13.0"
+-            launcher:allAppsBorderSpace="16"
+-            launcher:allAppsCellHeight="104"
+-            launcher:canBeDefault="true" />
+-
+-    </grid-option>
+-
+-    <grid-option
+-        launcher:name="5_by_5"
+-        launcher:numRows="5"
+-        launcher:numColumns="5"
+-        launcher:numFolderRows="4"
+-        launcher:numFolderColumns="4"
+-        launcher:numHotseatIcons="5"
+-        launcher:dbFile="launcher.db"
+-        launcher:defaultLayoutId="@xml/default_workspace_5x5"
+-        launcher:deviceCategory="phone|multi_display" >
+-
+-        <display-option
+-            launcher:name="Large Phone"
+-            launcher:minWidthDps="406"
+-            launcher:minHeightDps="694"
+-            launcher:iconImageSize="56"
+-            launcher:iconTextSize="14.4"
+-            launcher:allAppsBorderSpace="16"
+-            launcher:allAppsCellHeight="104"
+-            launcher:canBeDefault="true" />
+-
+-        <display-option
+-            launcher:name="Large Phone Split Display"
+-            launcher:minWidthDps="406"
+-            launcher:minHeightDps="694"
+-            launcher:iconImageSize="56"
+-            launcher:iconTextSize="14.4"
+-            launcher:allAppsBorderSpace="16"
+-            launcher:allAppsCellHeight="104"
+-            launcher:canBeDefault="true" />
+-
+-        <display-option
+-            launcher:name="Shorter Stubby"
+-            launcher:minWidthDps="255"
+-            launcher:minHeightDps="400"
+-            launcher:iconImageSize="48"
++            launcher:iconImageSize="70"
+             launcher:iconTextSize="13.0"
+             launcher:allAppsBorderSpace="16"
+             launcher:allAppsCellHeight="104"
+@@ -156,51 +80,4 @@
+ 
+     </grid-option>
+ 
+-    <grid-option
+-        launcher:name="6_by_5"
+-        launcher:numRows="5"
+-        launcher:numColumns="6"
+-        launcher:numSearchContainerColumns="3"
+-        launcher:numFolderRows="3"
+-        launcher:numFolderColumns="3"
+-        launcher:numHotseatIcons="6"
+-        launcher:hotseatColumnSpanLandscape="4"
+-        launcher:numAllAppsColumns="6"
+-        launcher:isScalable="true"
+-        launcher:devicePaddingId="@xml/paddings_6x5"
+-        launcher:dbFile="launcher_6_by_5.db"
+-        launcher:defaultLayoutId="@xml/default_workspace_6x5"
+-        launcher:deviceCategory="tablet" >
+-
+-        <display-option
+-            launcher:name="Tablet"
+-            launcher:minWidthDps="900"
+-            launcher:minHeightDps="820"
+-            launcher:minCellHeight="120"
+-            launcher:minCellWidth="102"
+-            launcher:minCellHeightLandscape="104"
+-            launcher:minCellWidthLandscape="120"
+-            launcher:iconImageSize="60"
+-            launcher:iconTextSize="14"
+-            launcher:borderSpaceHorizontal="16"
+-            launcher:borderSpaceVertical="64"
+-            launcher:borderSpaceLandscapeHorizontal="64"
+-            launcher:borderSpaceLandscapeVertical="16"
+-            launcher:horizontalMargin="54"
+-            launcher:horizontalMarginLandscape="120"
+-            launcher:allAppsCellWidth="96"
+-            launcher:allAppsCellHeight="142"
+-            launcher:allAppsCellWidthLandscape="126"
+-            launcher:allAppsCellHeightLandscape="126"
+-            launcher:allAppsIconSize="60"
+-            launcher:allAppsIconTextSize="14"
+-            launcher:allAppsBorderSpaceHorizontal="8"
+-            launcher:allAppsBorderSpaceVertical="16"
+-            launcher:allAppsBorderSpaceLandscape="16"
+-            launcher:hotseatBorderSpace="58"
+-            launcher:hotseatBorderSpaceLandscape="50.4"
+-            launcher:canBeDefault="true" />
+-
+-    </grid-option>
+-
+ </profiles>
+\ No newline at end of file
+diff --git a/res/xml/widget_sections.xml b/res/xml/widget_sections.xml
+index d755de6..5fcb8df 100644
+--- a/res/xml/widget_sections.xml
++++ b/res/xml/widget_sections.xml
+@@ -16,10 +16,10 @@
+ -->
+ 
+ <widget-sections xmlns:launcher="http://schemas.android.com/apk/res-auto">
+-    <section
+-        launcher:category="0"
+-        launcher:sectionDrawable="@drawable/ic_conversations_widget_category"
+-        launcher:sectionTitle="@string/widget_category_conversations">
+-        <widget launcher:provider="com.android.systemui/.people.widget.PeopleSpaceWidgetProvider" />
+-    </section>
++<!--    <section-->
++<!--        launcher:category="0"-->
++<!--        launcher:sectionDrawable="@drawable/ic_conversations_widget_category"-->
++<!--        launcher:sectionTitle="@string/widget_category_conversations">-->
++<!--        <widget launcher:provider="com.android.systemui/.people.widget.PeopleSpaceWidgetProvider" />-->
++<!--    </section>-->
+ </widget-sections>
+\ No newline at end of file
+diff --git a/src/com/android/launcher3/InvariantDeviceProfile.java b/src/com/android/launcher3/InvariantDeviceProfile.java
+index db43b44..dc274a8 100644
+--- a/src/com/android/launcher3/InvariantDeviceProfile.java
++++ b/src/com/android/launcher3/InvariantDeviceProfile.java
+@@ -170,6 +170,7 @@ public class InvariantDeviceProfile {
+ 
+     public String dbFile;
+     public int defaultLayoutId;
++    public int defaultWidgetId;
+     int demoModeLayoutId;
+     boolean[] inlineQsb = new boolean[COUNT_SIZES];
+ 
+@@ -329,6 +330,7 @@ public class InvariantDeviceProfile {
+         numSearchContainerColumns = closestProfile.numSearchContainerColumns;
+         dbFile = closestProfile.dbFile;
+         defaultLayoutId = closestProfile.defaultLayoutId;
++        defaultWidgetId = closestProfile.defaultWidgetId;
+         demoModeLayoutId = closestProfile.demoModeLayoutId;
+         numFolderRows = closestProfile.numFolderRows;
+         numFolderColumns = closestProfile.numFolderColumns;
+@@ -744,6 +746,7 @@ public class InvariantDeviceProfile {
+         private final String dbFile;
+ 
+         private final int defaultLayoutId;
++        int defaultWidgetId;
+         private final int demoModeLayoutId;
+ 
+         private final boolean isScalable;
+@@ -765,6 +768,8 @@ public class InvariantDeviceProfile {
+                     R.styleable.GridDisplayOption_defaultSplitDisplayLayoutId)
+                     ? R.styleable.GridDisplayOption_defaultSplitDisplayLayoutId
+                     : R.styleable.GridDisplayOption_defaultLayoutId, 0);
++            defaultWidgetId = a.getResourceId(
++                    R.styleable.GridDisplayOption_defaultWidgetId, defaultLayoutId);
+             demoModeLayoutId = a.getResourceId(
+                     R.styleable.GridDisplayOption_demoModeLayoutId, defaultLayoutId);
+ 
+diff --git a/src/com/android/launcher3/Launcher.java b/src/com/android/launcher3/Launcher.java
+index ebed31b..dcfd662 100644
+--- a/src/com/android/launcher3/Launcher.java
++++ b/src/com/android/launcher3/Launcher.java
+@@ -346,6 +346,8 @@ public class Launcher extends StatefulActivity<LauncherState>
+ 
+     private PopupDataProvider mPopupDataProvider;
+ 
++    private PermissionLocationHandler mPermissionLocationHandler;
++
+     private IntSet mSynchronouslyBoundPages = new IntSet();
+     @NonNull private IntSet mPagesToBindSynchronously = new IntSet();
+ 
+@@ -458,6 +460,7 @@ public class Launcher extends StatefulActivity<LauncherState>
+         mModel = app.getModel();
+ 
+         mRotationHelper = new RotationHelper(this);
++        mPermissionLocationHandler = new PermissionLocationHandler(this);
+         InvariantDeviceProfile idp = app.getInvariantDeviceProfile();
+         initDeviceProfile(idp);
+         idp.addOnChangeListener(this);
+diff --git a/src/com/android/launcher3/LauncherProvider.java b/src/com/android/launcher3/LauncherProvider.java
+index 5aa8a46..0d69708 100644
+--- a/src/com/android/launcher3/LauncherProvider.java
++++ b/src/com/android/launcher3/LauncherProvider.java
+@@ -259,6 +259,7 @@ public class LauncherProvider extends ContentProvider {
+                     int appWidgetId = widgetHost.allocateAppWidgetId();
+                     values.put(LauncherSettings.Favorites.APPWIDGET_ID, appWidgetId);
+                     if (!appWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,cn)) {
++                        Log.i(TAG, "Deleting app widget id " + appWidgetId);
+                         widgetHost.deleteAppWidgetId(appWidgetId);
+                         return false;
+                     }
+@@ -529,6 +530,7 @@ public class LauncherProvider extends ContentProvider {
+     synchronized private void loadDefaultFavoritesIfNecessary() {
+         SharedPreferences sp = Utilities.getPrefs(getContext());
+ 
++        Log.d(TAG, "loadDefaultFavoritesIfNecessary");
+         if (sp.getBoolean(mOpenHelper.getKey(EMPTY_DATABASE_CREATED), false)) {
+             Log.d(TAG, "loading default workspace");
+ 
+@@ -566,6 +568,8 @@ public class LauncherProvider extends ContentProvider {
+                 mOpenHelper.loadFavorites(mOpenHelper.getWritableDatabase(),
+                         getDefaultLayoutParser(widgetHost));
+             }
++            mOpenHelper.loadFavorites(mOpenHelper.getWritableDatabase(), getDefaultWidgetParser(widgetHost));
++
+             clearFlagEmptyDbCreated();
+         }
+     }
+@@ -634,6 +638,14 @@ public class LauncherProvider extends ContentProvider {
+                 mOpenHelper, getContext().getResources(), defaultLayout);
+     }
+ 
++    private DefaultLayoutParser getDefaultWidgetParser(AppWidgetHost widgetHost) {
++        InvariantDeviceProfile idp = LauncherAppState.getIDP(getContext());
++        int defaultWidgetId = idp.defaultWidgetId;
++
++        return new DefaultLayoutParser(getContext(), widgetHost,
++                mOpenHelper, getContext().getResources(), defaultWidgetId);
++    }
++
+     /**
+      * The class is subclassed in tests to create an in-memory db.
+      */
+@@ -937,6 +949,7 @@ public class LauncherProvider extends ContentProvider {
+                 // Although the method was defined in O, it has existed since the beginning of time,
+                 // so it might work on older platforms as well.
+                 allWidgets = host.getAppWidgetIds();
++                Log.i(TAG, "allWidgets size " + allWidgets.length);
+             } catch (IncompatibleClassChangeError e) {
+                 Log.e(TAG, "getAppWidgetIds not supported", e);
+                 return;
+@@ -944,7 +957,9 @@ public class LauncherProvider extends ContentProvider {
+             final IntSet validWidgets = IntSet.wrap(LauncherDbUtils.queryIntArray(false, db,
+                     Favorites.TABLE_NAME, Favorites.APPWIDGET_ID,
+                     "itemType=" + Favorites.ITEM_TYPE_APPWIDGET, null, null));
++            Log.i(TAG,  "ValidWidgets " + validWidgets);
+             for (int widgetId : allWidgets) {
++                Log.i(TAG, "widgetId = " + widgetId);
+                 if (!validWidgets.contains(widgetId)) {
+                     try {
+                         FileLog.d(TAG, "Deleting invalid widget " + widgetId);

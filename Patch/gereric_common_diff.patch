@@ -1,0 +1,12 @@
+diff --git a/gsi_arm64.mk b/gsi_arm64.mk
+index d792cd9..ba6f588 100644
+--- a/gsi_arm64.mk
++++ b/gsi_arm64.mk
+@@ -44,7 +44,11 @@ $(call inherit-product, device/generic/common/gsi_product.mk)
+ # Special settings for GSI releasing
+ #
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi_release.mk)
++$(call inherit-product, device/vendor/config/device_fulgo.mk)
+ 
+ PRODUCT_NAME := gsi_arm64
+ PRODUCT_DEVICE := generic_arm64
